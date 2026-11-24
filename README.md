@@ -6,9 +6,9 @@ A single-file interactive pink firework Christmas tree, cloned from the referenc
 
 | Progress | Phase | What happens |
 | --- | --- | --- |
-| 0.00–0.12 | Waiting for fireworks | Dark night sky, ambient twinkling dots |
-| 0.12–0.32 | Fireworks bursting | Pink shells rise and explode into scattered sparks |
-| 0.32–0.55 | Light spots gathering | Spots swirl downward and drift toward tree positions |
+| 0.00–0.12 | Waiting for fireworks | Dark sky and twinkling ambient dots as the first pink shells launch |
+| 0.12–0.32 | Fireworks bursting | Pink shells burst in sequence; their light spots appear around the burst points |
+| 0.32–0.55 | Light spots gathering | The burst remnants swirl downward and drift toward their tree positions |
 | 0.55–0.80 | Tree forming | Cone particles fill bottom-up; spiral strands wrap on |
 | 0.80–0.92 | Top star ignites | Radiant star with rotating light rays |
 | 0.92–1.00 | Finale | Side fireworks, dedication caption fades in |
@@ -16,13 +16,16 @@ A single-file interactive pink firework Christmas tree, cloned from the referenc
 ## Features
 
 - **Auto-play on load**: the synthesis starts by itself; after the finished tree holds for 6 seconds, it resets and replays in a loop
-- Progress-driven build-up: every element appears only at its phase (strands, baubles, star, caption)
-- Left code panel shows the source grouped by phase; **scrolling the code scrubs the animation**, and auto-play scrolls the code in sync
+- Progress-driven build-up: burst remnants reveal and gather into the tree; strands, baubles, star, and caption appear in their own phases
+- Full-screen canvas runs behind a transparent code panel; **scrolling the code scrubs the animation**, and auto-play scrolls the code in sync
+- Touch scrolling works in mobile browsers, including WeChat's in-app browser; open the root GitHub Pages link to watch and interact
 - Click anywhere on the stage to launch an extra firework; the button pauses / resumes
 - Pink palette for particles / trails / fireworks; baubles keep green / red / blue / amber
-- Bottom dedication: script font **Merry Christmas** above **Zhang Aoyun**
+- Bottom dedication: **Zhang Aoyun** uses the same bold italic serif gradient style as **Merry Christmas**
 
-## Run
+## Run and share
+
+The root `index.html` opens the standalone animation page. When GitHub Pages is enabled, share the site URL in WeChat; it opens as an interactive webpage rather than a downloaded document.
 
 No build step, no dependencies, no CDN. Open `firework-christmas-tree.html` directly, or serve locally:
 

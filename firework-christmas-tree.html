@@ -2,7 +2,11 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="A pink firework Christmas tree built live from sparkling particles. Scroll the code to control the animation." />
+<meta name="theme-color" content="#07070d" />
+<meta property="og:title" content="Pink Firework Christmas Tree · Zhang Aoyun" />
+<meta property="og:description" content="Watch pink fireworks and sparkling particles assemble into a Christmas tree." />
 <title>Pink Firework Christmas Tree · Zhang Aoyun</title>
 <style>
   :root{
@@ -15,18 +19,21 @@
     --muted:rgba(255,228,240,.55);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);
+  html,body{width:100%;height:100%;height:100dvh;overflow:hidden;background:var(--bg);
     font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--pearl)}
-  .wrap{display:flex;width:100%;height:100%}
+  .wrap{position:relative;width:100%;height:100%;height:100dvh;overflow:hidden}
 
   /* ---------- 左侧代码面板 ---------- */
   .code-panel{
-    width:400px;min-width:320px;height:100%;background:var(--panel);
+    position:absolute;left:0;top:0;width:400px;min-width:0;height:100%;background:transparent;
     border-right:1px solid var(--panel-border);display:flex;flex-direction:column;z-index:5;
   }
   .code-head{
-    padding:12px 16px;border-bottom:1px solid var(--panel-border);
-    display:flex;align-items:center;gap:10px;
+    padding:12px 16px;
+    padding-top:calc(12px + env(safe-area-inset-top, 0px));
+    padding-left:calc(16px + env(safe-area-inset-left, 0px));
+    border-bottom:1px solid var(--panel-border);
+    display:flex;align-items:center;gap:10px;text-shadow:0 1px 3px rgba(0,0,0,.95);
   }
   .code-head .dots{display:flex;gap:6px}
   .code-head .dots i{width:10px;height:10px;border-radius:50%;display:block}
@@ -36,8 +43,13 @@
     border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer;white-space:nowrap;
   }
   .play-btn:hover{background:rgba(255,255,255,.14)}
-  .code-body{flex:1;overflow:auto;padding:14px 0;font-family:Consolas,"Courier New",monospace;font-size:12px;line-height:1.75}
-  .cline{display:flex;gap:14px;padding:0 16px;white-space:pre}
+  .code-body{flex:1;overflow:auto;padding:14px 0;font-family:Consolas,"Courier New",monospace;font-size:12px;line-height:1.75;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;
+    scrollbar-color:rgba(255,179,212,.38) transparent;scrollbar-width:thin}
+  .code-body::-webkit-scrollbar{width:7px}
+  .code-body::-webkit-scrollbar-track{background:transparent}
+  .code-body::-webkit-scrollbar-thumb{background:rgba(255,179,212,.38);border-radius:8px}
+  .cline{display:flex;gap:14px;padding:0 16px;white-space:pre;text-shadow:0 1px 3px rgba(0,0,0,.95)}
   .cline .ln{width:22px;text-align:right;color:rgba(255,255,255,.22);user-select:none;flex:none}
   .cline .src{flex:1;white-space:pre-wrap;word-break:break-word}
   .tok-kw{color:#f06ba5}
@@ -47,15 +59,16 @@
   .tok-fn{color:#ffb3d4}
 
   /* ---------- 右侧舞台 ---------- */
-  .stage{position:relative;flex:1;height:100%}
+  .stage{position:absolute;inset:0;width:100%;height:100%}
   #scene{position:absolute;inset:0;display:block}
-  .stage-top{position:absolute;top:18px;right:22px;z-index:10;display:flex;align-items:center;gap:12px}
+  .stage-top{position:absolute;top:calc(18px + env(safe-area-inset-top, 0px));right:calc(22px + env(safe-area-inset-right, 0px));
+    z-index:10;display:flex;align-items:center;gap:12px}
   .badge{font-size:11px;color:var(--muted);letter-spacing:.18em}
   .phase{font-size:12px;color:var(--pink);letter-spacing:.08em}
 
   /* ---------- 底部文字（随合成进度淡入） ---------- */
   .caption{
-    position:absolute;left:50%;bottom:34px;transform:translateX(-50%);
+    position:absolute;left:50%;bottom:calc(34px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);
     z-index:10;text-align:center;pointer-events:none;opacity:0;transition:opacity .6s;
   }
   .caption .en{
@@ -66,13 +79,15 @@
     text-shadow:0 0 28px rgba(255,158,198,.25);
   }
   .caption .name{
-    margin-top:6px;font-family:Georgia,"Times New Roman",serif;font-style:italic;
-    font-size:clamp(18px,2.2vw,26px);color:var(--pearl);letter-spacing:.08em;
+    margin-top:6px;font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;
+    font-size:clamp(18px,2.2vw,26px);letter-spacing:.08em;
+    background:linear-gradient(120deg,#fff0f7 10%,var(--pink) 55%,#e86a9c 90%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
     text-shadow:0 0 18px rgba(255,158,198,.35);
   }
 
   @media (max-width:860px){
-    .code-panel{position:absolute;left:0;top:0;bottom:0;width:230px;opacity:.85}
+    .code-panel{width:clamp(150px,34vw,230px)}
   }
 </style>
 </head>
@@ -132,7 +147,7 @@
     '  }',
     '}',
     '',
-    '// 阶段 3：光斑盘旋下沉、向树位汇聚',
+    '// 阶段 3：烟花余烬光斑盘旋下沉、向树位汇聚',
     'const conv = smoothstep(.25, .85, progress);',
     'x = scatter.x*(1-conv) + treeX*conv;',
     'y = scatter.y*(1-conv) + treeY*conv;',
@@ -205,16 +220,21 @@
 
   let W=0, H=0, DPR=1, groundY=0, cx=0, TREE_H=0, TREE_R=0;
 
-  const PINK = ["#ffb3d4","#f06ba5","#ffe9f3","#ff8fbf"];
+  const PINK = ["#ffb3d4","#f06ba5","#ffd6e7","#ff8fbf"];
   const BAUBLE_COLORS = ["#37d67a","#e0566a","#7db4ff","#f2c14e"]; // 点缀色不变
 
   const DURATION = 13; // 与参考视频时长一致（秒）
   const HOLD = 6;      // 树成形后停留秒数，随后自动重播
+  const fireworkCues = [
+    { at:.015, x:.32, y:.29 },
+    { at:.055, x:.68, y:.28 },
+    { at:.18, x:.50, y:.23 },
+  ];
   const state = {
     time:0, rot:0,
     progress:0, target:0,
     auto:true, playT:0, holdT:0,
-    lastSide:0,
+    fireworkIndex:0, finaleT:0, finaleSide:0,
   };
 
   let treeParts = [], baubles = [], sparks = [], shells = [], ambient = [];
@@ -224,7 +244,15 @@
 
   function buildTree(){
     treeParts = []; baubles = [];
+    const burstOrigins = [
+      {x:W*.32,y:H*.29},
+      {x:W*.68,y:H*.28},
+      {x:W*.50,y:H*.23},
+    ];
     for(let i=0;i<900;i++){
+      const origin = burstOrigins[i % burstOrigins.length];
+      const scatterAngle = Math.random()*Math.PI*2;
+      const scatterRadius = Math.sqrt(Math.random())*Math.min(W*.15,H*.16);
       treeParts.push({
         t: Math.pow(Math.random(),.72),
         theta: Math.random()*Math.PI*2,
@@ -232,9 +260,9 @@
         size: Math.random()*1.4+.7,
         warm: Math.random(),
         jitter: Math.random()*Math.PI*2,
-        // 散落位置（屏幕空间），汇聚时向树位插值
-        sx: cx + (Math.random()-.5)*W*.95,
-        sy: groundY - Math.random()*H*.72,
+        // 烟花绽放后的散落位置，汇聚时向树位插值
+        sx: origin.x + Math.cos(scatterAngle)*scatterRadius,
+        sy: origin.y + Math.sin(scatterAngle)*scatterRadius,
       });
     }
     for(let i=0;i<80;i++){
@@ -307,6 +335,7 @@
   /* ---------- 树身粉色粒子光斑（散落 → 汇聚） ---------- */
   function drawParticles(p){
     const conv = smoothstep(0.25, 0.85, p);
+    const reveal = clamp01((p-0.18)/0.20);
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
     for(const pt of treeParts){
@@ -318,8 +347,8 @@
       const x = pt.sx*(1-conv) + treeX*conv + wob;
       const y = pt.sy*(1-conv) + treeY*conv + wob*.6;
       const depth = .55 + .45*((Math.sin(ang)+1)/2);
-      ctx.globalAlpha = depth*(.25+.75*conv)*(.65+.35*pt.warm);
-      ctx.fillStyle = pt.warm > .85 ? "#f06ba5" : (pt.warm > .3 ? "#ffb3d4" : "#ffe9f3");
+      ctx.globalAlpha = reveal*depth*(.25+.75*conv)*(.65+.35*pt.warm);
+      ctx.fillStyle = pt.warm > .85 ? "#f06ba5" : (pt.warm > .3 ? "#ffb3d4" : "#ffd6e7");
       ctx.beginPath(); ctx.arc(x,y,pt.size,0,Math.PI*2); ctx.fill();
     }
     ctx.restore();
@@ -359,15 +388,15 @@
     for(let i=0;i<12;i++){
       const ang = i/12*Math.PI*2 + state.time*.15;
       const len = R*(2.2+.5*Math.sin(state.time*2+i));
-      ctx.strokeStyle = "rgba(255,220,236,.5)";
+      ctx.strokeStyle = "rgba(255,143,191,.72)";
       ctx.lineWidth = 1.2;
       ctx.beginPath();
       ctx.moveTo(sx+Math.cos(ang)*R, sy+Math.sin(ang)*R);
       ctx.lineTo(sx+Math.cos(ang)*len, sy+Math.sin(ang)*len);
       ctx.stroke();
     }
-    ctx.shadowColor = "#ffdcec"; ctx.shadowBlur = 26;
-    ctx.fillStyle = "#ffe9f3";
+    ctx.shadowColor = "#ff8fbf"; ctx.shadowBlur = 26;
+    ctx.fillStyle = "#ffb3d4";
     ctx.beginPath();
     for(let i=0;i<10;i++){
       const ang = -Math.PI/2 + i*Math.PI/5;
@@ -392,8 +421,8 @@
   }
 
   /* ---------- 烟花 ---------- */
-  function launchFirework(x){
-    shells.push({ x: x ?? (W*.2+Math.random()*W*.6), y: groundY, vy: -(6.2+Math.random()*2.6), targetY: H*(.18+Math.random()*.25) });
+  function launchFirework(x, targetY){
+    shells.push({ x: x ?? (W*.2+Math.random()*W*.6), y: groundY, vy: -(6.2+Math.random()*2.6), targetY: targetY ?? H*(.18+Math.random()*.25) });
   }
   function explode(fw){
     for(let i=0;i<46;i++){
@@ -402,19 +431,20 @@
       sparks.push({ x:fw.x, y:fw.y, vx:Math.cos(a)*v, vy:Math.sin(a)*v, life:1, color:pickPink() });
     }
   }
-  function updateFireworks(dt, p){
+  function updateFireworks(dt){
+    const frameScale = dt*60;
     ctx.save();
     shells = shells.filter(fw=>{
-      fw.y += fw.vy; fw.vy += .06;
+      fw.y += fw.vy*frameScale; fw.vy += .06*frameScale;
       ctx.globalAlpha = 1;
-      ctx.fillStyle = "#ffe9f3";
+      ctx.fillStyle = "#ffb3d4";
       ctx.beginPath(); ctx.arc(fw.x, fw.y, 2.2, 0, Math.PI*2); ctx.fill();
       if(fw.y <= fw.targetY || fw.vy >= -1){ explode(fw); return false; }
       return true;
     });
     sparks = sparks.filter(sp=>{
-      sp.x += sp.vx; sp.y += sp.vy;
-      sp.vx *= .985; sp.vy *= .985; sp.vy += .03;
+      sp.x += sp.vx*frameScale; sp.y += sp.vy*frameScale;
+      sp.vx *= Math.pow(.985,frameScale); sp.vy *= Math.pow(.985,frameScale); sp.vy += .03*frameScale;
       sp.life -= dt*.9;
       if(sp.life <= 0) return false;
       ctx.globalAlpha = Math.max(0, sp.life);
@@ -431,16 +461,24 @@
     if(p < .55) return "03 · 光斑汇聚";
     if(p < .80) return "04 · 生成圣诞树";
     if(p < .92) return "05 · 点亮树顶";
-    return "06 · 圣诞快乐";
+    return "06 · Zhang Aoyun";
   }
 
   /* ---------- 代码滚动 ↔ 进度联动 ---------- */
   function codeScrollMax(){ return Math.max(0, codeBody.scrollHeight - codeBody.clientHeight); }
-  let suppressScroll = false;
-  const bootTime = performance.now();
+  let programmaticScrollTop = null;
+  function setCodeScroll(progress){
+    const next = progress*codeScrollMax();
+    if(Math.abs(codeBody.scrollTop-next) < 1) return;
+    codeBody.scrollTop = next;
+    programmaticScrollTop = codeBody.scrollTop;
+  }
   codeBody.addEventListener("scroll", ()=>{
-    if(suppressScroll) return;                 // 程序自动滚动，不接管
-    if(performance.now() - bootTime < 400) return; // 初始布局产生的伪滚动
+    if(programmaticScrollTop !== null && Math.abs(codeBody.scrollTop-programmaticScrollTop) < 1){
+      programmaticScrollTop = null;
+      return;
+    }
+    programmaticScrollTop = null;
     state.auto = false;
     playBtn.textContent = "▶ 自动播放";
     const max = codeScrollMax();
@@ -453,9 +491,9 @@
   });
 
   /* ---------- 主循环 ---------- */
-  let last = Date.now();
+  let last = performance.now();
   function loop(){
-    const nowMs = Date.now();
+    const nowMs = performance.now();
     const dt = Math.min(.05, (nowMs-last)/1000); last = nowMs;
     state.time += dt;
     state.rot += dt*.18;
@@ -464,11 +502,9 @@
     if(state.auto){
       state.playT += dt;
       state.target = Math.min(1, state.playT/DURATION);
-      suppressScroll = true;
-      codeBody.scrollTop = state.target*codeScrollMax();
-      requestAnimationFrame(()=>{ suppressScroll = false; });
     }
     state.progress += (state.target - state.progress)*Math.min(1, dt*1.8);
+    if(state.auto) setCodeScroll(state.progress);
 
     // 播完停留 HOLD 秒后，自动从头重播整段合成过程
     if(state.auto && state.target >= 1 && state.progress >= 0.999){
@@ -492,11 +528,24 @@
     drawParticles(p);
     drawBaubles(p);
     drawTopStar(p);
-    updateFireworks(dt, p);
+    updateFireworks(dt);
 
-    // 前期密集放烟花，树成形后两侧 periodic 齐放
-    const interval = p < .35 ? 1.2 : 3.0;
-    if(state.time - state.lastSide > interval){ state.lastSide = state.time; launchFirework(); }
+    // 开场烟花与余烬出现顺序绑定合成进度；结尾两侧烟花持续点缀成树画面
+    while(state.fireworkIndex < fireworkCues.length && p >= fireworkCues[state.fireworkIndex].at){
+      const cue = fireworkCues[state.fireworkIndex++];
+      launchFirework(W*cue.x,H*cue.y);
+    }
+    if(p >= .92){
+      state.finaleT += dt;
+      if(state.finaleT >= 1.1){
+        state.finaleT = 0;
+        const x = state.finaleSide++ % 2 === 0 ? W*.18 : W*.82;
+        launchFirework(x,H*(.22+Math.random()*.12));
+      }
+    } else {
+      state.finaleT = 0;
+    }
+    if(p < fireworkCues[0].at) state.fireworkIndex = 0;
 
     phaseLabel.textContent = phaseText(p);
     captionEl.style.opacity = clamp01((p-0.90)/0.10);
@@ -517,12 +566,10 @@
     state.auto = false;
     state.progress = state.target = clamp01(fixed);
     playBtn.textContent = "▶ 自动播放";
-    suppressScroll = true;
-    codeBody.scrollTop = state.target*codeScrollMax();
-    requestAnimationFrame(()=>{ suppressScroll = false; });
+    setCodeScroll(state.progress);
+    state.fireworkIndex = fireworkCues.findIndex(cue=>cue.at > state.progress);
+    if(state.fireworkIndex < 0) state.fireworkIndex = fireworkCues.length;
   }
-  // 开场先放两发
-  launchFirework(W*.3); launchFirework(W*.7);
   requestAnimationFrame(loop);
 })();
 </script>
