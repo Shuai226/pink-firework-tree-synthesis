@@ -209,10 +209,11 @@
   const BAUBLE_COLORS = ["#37d67a","#e0566a","#7db4ff","#f2c14e"]; // 点缀色不变
 
   const DURATION = 13; // 与参考视频时长一致（秒）
+  const HOLD = 6;      // 树成形后停留秒数，随后自动重播
   const state = {
     time:0, rot:0,
     progress:0, target:0,
-    auto:true, playT:0,
+    auto:true, playT:0, holdT:0,
     lastSide:0,
   };
 
@@ -435,7 +436,11 @@
 
   /* ---------- 代码滚动 ↔ 进度联动 ---------- */
   function codeScrollMax(){ return Math.max(0, codeBody.scrollHeight - codeBody.clientHeight); }
+  let suppressScroll = false;
+  const bootTime = performance.now();
   codeBody.addEventListener("scroll", ()=>{
+    if(suppressScroll) return;                 // 程序自动滚动，不接管
+    if(performance.now() - bootTime < 400) return; // 初始布局产生的伪滚动
     state.auto = false;
     playBtn.textContent = "▶ 自动播放";
     const max = codeScrollMax();
@@ -448,9 +453,10 @@
   });
 
   /* ---------- 主循环 ---------- */
-  let last = performance.now();
-  function loop(now){
-    const dt = Math.min(.05, (now-last)/1000); last = now;
+  let last = Date.now();
+  function loop(){
+    const nowMs = Date.now();
+    const dt = Math.min(.05, (nowMs-last)/1000); last = nowMs;
     state.time += dt;
     state.rot += dt*.18;
 
@@ -458,9 +464,22 @@
     if(state.auto){
       state.playT += dt;
       state.target = Math.min(1, state.playT/DURATION);
+      suppressScroll = true;
       codeBody.scrollTop = state.target*codeScrollMax();
+      requestAnimationFrame(()=>{ suppressScroll = false; });
     }
     state.progress += (state.target - state.progress)*Math.min(1, dt*1.8);
+
+    // 播完停留 HOLD 秒后，自动从头重播整段合成过程
+    if(state.auto && state.target >= 1 && state.progress >= 0.999){
+      state.holdT += dt;
+      if(state.holdT >= HOLD){
+        state.playT = 0; state.progress = 0; state.target = 0; state.holdT = 0;
+        sparks = []; shells = [];
+      }
+    } else {
+      state.holdT = 0;
+    }
     const p = state.progress;
 
     // 半透明覆盖形成拖尾
@@ -498,7 +517,9 @@
     state.auto = false;
     state.progress = state.target = clamp01(fixed);
     playBtn.textContent = "▶ 自动播放";
+    suppressScroll = true;
     codeBody.scrollTop = state.target*codeScrollMax();
+    requestAnimationFrame(()=>{ suppressScroll = false; });
   }
   // 开场先放两发
   launchFirework(W*.3); launchFirework(W*.7);
