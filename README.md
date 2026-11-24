@@ -15,9 +15,10 @@ A single-file interactive pink firework Christmas tree, cloned from the referenc
 
 ## Features
 
+- **Auto-play on load**: the synthesis starts by itself; after the finished tree holds for 6 seconds, it resets and replays in a loop
 - Progress-driven build-up: every element appears only at its phase (strands, baubles, star, caption)
 - Left code panel shows the source grouped by phase; **scrolling the code scrubs the animation**, and auto-play scrolls the code in sync
-- Click anywhere on the stage to launch an extra firework
+- Click anywhere on the stage to launch an extra firework; the button pauses / resumes
 - Pink palette for particles / trails / fireworks; baubles keep green / red / blue / amber
 - Bottom dedication: script font **Merry Christmas** above **Zhang Aoyun**
 
